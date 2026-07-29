@@ -1,0 +1,12 @@
+{
+    "name": "Herrengolf E-Scoring",
+    "short_name": "HG E-Scoring",
+    "description": "Offlinefähige Scorekarte für das Herrengolf im Golfclub Thülsfelder Talsperre",
+    "lang": "de-DE",
+    "start_url": "./index.html",
+    "scope": "./",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#f3f6f2",
+    "theme_color": "#155c35"
+}

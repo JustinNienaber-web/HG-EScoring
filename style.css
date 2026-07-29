@@ -1,0 +1,871 @@
+:root {
+    color-scheme: light;
+
+    --green-dark: #155c35;
+    --green-medium: #26784a;
+    --green-light: #e9f3ec;
+    --green-pale: #f5faf6;
+
+    --page-background: #f3f6f2;
+    --card-background: #ffffff;
+
+    --text-primary: #183024;
+    --text-secondary: #68786d;
+
+    --border-color: #d3dfd6;
+    --border-strong: #b7cabd;
+
+    --shadow:
+        0 12px 32px rgba(24, 48, 36, 0.09);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 28px 16px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #f7faf7 0%,
+            var(--page-background) 100%
+        );
+
+    color: var(--text-primary);
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+.app {
+    width: 100%;
+    max-width: 560px;
+    margin: 0 auto;
+}
+
+.app-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    margin-bottom: 26px;
+    padding: 0 8px;
+}
+
+.app-icon {
+    flex: 0 0 auto;
+    font-size: 42px;
+    line-height: 1;
+}
+
+.app-header h1 {
+    margin: 0 0 5px;
+
+    color: var(--green-dark);
+
+    font-size: clamp(25px, 7vw, 35px);
+    line-height: 1.08;
+    letter-spacing: -0.6px;
+}
+
+.app-header p {
+    margin: 0;
+
+    color: var(--text-secondary);
+
+    font-size: 15px;
+    line-height: 1.3;
+}
+
+.card {
+    padding: 24px;
+
+    background-color: var(--card-background);
+
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+
+    box-shadow: var(--shadow);
+}
+
+.card h2 {
+    margin: 0 0 22px;
+
+    color: var(--green-dark);
+
+    font-size: 23px;
+    line-height: 1.2;
+}
+
+.card p {
+    margin: 0 0 22px;
+
+    color: var(--text-secondary);
+
+    line-height: 1.55;
+}
+
+form {
+    display: grid;
+    gap: 18px;
+}
+
+fieldset {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+
+    min-width: 0;
+    margin: 0;
+    padding: 18px 14px 14px;
+
+    background-color: var(--green-pale);
+
+    border: 1px solid var(--border-color);
+    border-radius: 13px;
+}
+
+fieldset:nth-of-type(2) {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+legend {
+    padding: 0 7px;
+
+    color: var(--green-dark);
+
+    font-size: 15px;
+    font-weight: 700;
+}
+
+fieldset label {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    min-height: 45px;
+    padding: 9px 7px;
+
+    background-color: #ffffff;
+
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+
+    color: var(--text-primary);
+
+    font-size: 15px;
+    cursor: pointer;
+}
+
+fieldset label:hover {
+    border-color: var(--green-medium);
+}
+
+fieldset label:has(input:checked) {
+    background-color: var(--green-light);
+
+    border-color: var(--green-medium);
+
+    color: var(--green-dark);
+    font-weight: 700;
+}
+
+fieldset input[type="radio"] {
+    width: 17px;
+    height: 17px;
+    margin: 0;
+
+    accent-color: var(--green-dark);
+}
+
+.primary-button,
+.secondary-button {
+    width: 100%;
+    min-height: 52px;
+    padding: 12px 18px;
+
+    border-radius: 12px;
+
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.primary-button {
+    background-color: var(--green-dark);
+    color: #ffffff;
+
+    border: 1px solid var(--green-dark);
+
+    box-shadow:
+        0 5px 12px rgba(21, 92, 53, 0.18);
+}
+
+.primary-button:hover {
+    background-color: var(--green-medium);
+    border-color: var(--green-medium);
+}
+
+.primary-button:active,
+.secondary-button:active {
+    transform: translateY(1px);
+}
+
+.secondary-button {
+    background-color: transparent;
+    color: var(--green-dark);
+
+    border: 1px solid var(--border-strong);
+}
+
+.secondary-button:hover {
+    background-color: var(--green-light);
+    border-color: var(--green-medium);
+}
+
+button:focus-visible,
+input:focus-visible {
+    outline: 3px solid rgba(38, 120, 74, 0.25);
+    outline-offset: 2px;
+}
+
+@media (max-width: 460px) {
+    body {
+        padding: 20px 12px;
+    }
+
+    .app-header {
+        align-items: flex-start;
+        padding: 0 4px;
+    }
+
+    .app-icon {
+        font-size: 36px;
+    }
+
+    .card {
+        padding: 20px 16px;
+        border-radius: 15px;
+    }
+
+    fieldset {
+        grid-template-columns: 1fr;
+    }
+
+    fieldset:nth-of-type(2) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    fieldset label {
+        justify-content: flex-start;
+        padding-left: 14px;
+    }
+}
+
+@media (min-width: 700px) {
+    body {
+        padding-top: 48px;
+    }
+
+    .card {
+        padding: 28px;
+    }
+}
+/* Spielereingabe */
+
+.auswahl-zusammenfassung {
+    padding: 10px 14px;
+
+    background-color: var(--green-light);
+    color: var(--green-dark);
+
+    border-radius: 10px;
+
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.spielerliste {
+    display: grid;
+    gap: 14px;
+}
+
+.spielerkarte {
+    padding: 18px;
+
+    background-color: var(--green-pale);
+
+    border: 1px solid var(--border-color);
+    border-radius: 13px;
+}
+
+.spielerkarte h3 {
+    margin: 0 0 15px;
+
+    color: var(--green-dark);
+
+    font-size: 18px;
+}
+
+.eingabefeld {
+    display: grid;
+    gap: 7px;
+
+    margin-bottom: 14px;
+}
+
+.eingabefeld:last-child {
+    margin-bottom: 0;
+}
+
+.eingabefeld span {
+    color: var(--text-secondary);
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.eingabefeld input {
+    width: 100%;
+    min-height: 48px;
+    padding: 10px 13px;
+
+    background-color: #ffffff;
+    color: var(--text-primary);
+
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+
+    font-size: 17px;
+}
+
+.eingabefeld input:focus {
+    border-color: var(--green-medium);
+
+    outline: 3px solid rgba(38, 120, 74, 0.16);
+}
+
+.card ul {
+    margin: 0 0 22px;
+    padding: 0;
+
+    list-style: none;
+}
+
+.card li {
+    margin-bottom: 8px;
+    padding: 12px 14px;
+
+    background-color: var(--green-pale);
+
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+}
+
+@media (min-width: 700px) {
+    .spielerliste {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+.vorgabenliste li {
+    display: grid;
+    gap: 5px;
+}
+
+.vorgabenliste li > span {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.vorgabenliste li > strong {
+    margin-bottom: 3px;
+    color: var(--green-dark);
+    font-size: 17px;
+}
+/* Teamdarstellung beim 4er */
+
+.spielerkarte-kopf {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    margin-bottom: 15px;
+}
+
+.spielerkarte-kopf h3 {
+    margin: 0;
+}
+
+.team-label {
+    padding: 5px 10px;
+
+    border-radius: 999px;
+
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.spielerkarte.team-1 {
+    background-color: #f2f8f4;
+    border-color: #8fbea0;
+    border-left: 5px solid #27794a;
+}
+
+.spielerkarte.team-1 .team-label {
+    background-color: #d9ecdf;
+    color: #155c35;
+}
+
+.spielerkarte.team-2 {
+    background-color: #f4f6fb;
+    border-color: #9faed0;
+    border-left: 5px solid #49649e;
+}
+
+.spielerkarte.team-2 .team-label {
+    background-color: #e0e6f3;
+    color: #304a82;
+}
+/* Gespeicherte Runde */
+
+.rundeninfo {
+    display: grid;
+    gap: 10px;
+
+    margin-bottom: 22px;
+}
+
+.rundeninfo span {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+
+    padding: 12px 14px;
+
+    background-color: var(--green-pale);
+
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+
+    color: var(--text-secondary);
+}
+
+.rundeninfo strong {
+    color: var(--text-primary);
+}
+
+/* Lochmaske */
+
+.loch-kopf {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.loch-kopf > span {
+    display: inline-block;
+
+    margin-bottom: 6px;
+
+    color: var(--text-secondary);
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.loch-kopf h2 {
+    margin-bottom: 12px;
+
+    font-size: 32px;
+}
+
+.lochdaten {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.lochdaten strong {
+    padding: 7px 13px;
+
+    background-color: var(--green-light);
+    color: var(--green-dark);
+
+    border-radius: 999px;
+
+    font-size: 14px;
+}
+
+.scorekarten {
+    display: grid;
+    gap: 12px;
+}
+
+.scorekarte {
+    padding: 16px;
+
+    background-color: var(--green-pale);
+
+    border: 1px solid var(--border-color);
+    border-radius: 13px;
+}
+
+.scorekarte-kopf {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    margin-bottom: 14px;
+}
+
+.scorekarte-kopf strong {
+    color: var(--green-dark);
+    font-size: 18px;
+}
+
+.scorekarte-kopf span {
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+.score-stepper {
+    display: grid;
+    grid-template-columns: 54px 1fr 54px;
+    align-items: center;
+    gap: 10px;
+}
+
+.score-stepper button {
+    width: 54px;
+    height: 48px;
+
+    background-color: #ffffff;
+    color: var(--green-dark);
+
+    border: 1px solid var(--border-strong);
+    border-radius: 11px;
+
+    font-size: 27px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.score-stepper button:active {
+    background-color: var(--green-light);
+    transform: translateY(1px);
+}
+
+.score-stepper output {
+    color: var(--text-primary);
+
+    font-size: 31px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.sandy-auswahl {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    margin-top: 13px;
+    padding-top: 12px;
+
+    border-top: 1px solid var(--border-color);
+
+    color: var(--green-dark);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.sandy-auswahl input {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+
+    accent-color: var(--green-dark);
+}
+
+.loch-navigation {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 10px;
+
+    margin-top: 20px;
+}
+
+.secondary-button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+/* Neary-Auswahl */
+
+.neary-bereich {
+    display: grid;
+    gap: 8px;
+
+    margin-top: 14px;
+    padding: 16px;
+
+    background-color: #fff8e8;
+
+    border: 1px solid #e5cf96;
+    border-radius: 13px;
+}
+
+.neary-bereich label {
+    color: #725514;
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.neary-bereich select {
+    width: 100%;
+    min-height: 48px;
+    padding: 10px 13px;
+
+    background-color: #ffffff;
+    color: var(--text-primary);
+
+    border: 1px solid #d6bd7c;
+    border-radius: 10px;
+
+    font-size: 16px;
+}
+/* Endauswertung */
+
+.endkarten,
+.team-endkarten {
+    display: grid;
+    gap: 14px;
+}
+
+.endkarte {
+    padding: 17px;
+
+    background-color: var(--green-pale);
+
+    border: 1px solid var(--border-color);
+    border-radius: 13px;
+}
+
+.endkarte h3 {
+    margin: 0 0 12px;
+
+    color: var(--green-dark);
+    font-size: 19px;
+}
+
+.endkarte > p {
+    margin: -5px 0 14px;
+    font-size: 14px;
+}
+
+.endkarte dl {
+    display: grid;
+    gap: 7px;
+
+    margin: 0;
+}
+
+.endkarte dl div {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+
+    padding-bottom: 7px;
+
+    border-bottom: 1px solid var(--border-color);
+}
+
+.endkarte dl div:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.endkarte dt {
+    color: var(--text-secondary);
+}
+
+.endkarte dd {
+    margin: 0;
+    font-weight: 700;
+}
+
+.endkarte .hervorgehoben {
+    color: var(--green-dark);
+    font-weight: 700;
+}
+
+.team-endkarten {
+    margin-bottom: 20px;
+}
+
+.end-navigation {
+    display: grid;
+    gap: 10px;
+
+    margin-top: 20px;
+}
+
+@media (min-width: 700px) {
+    .endkarten,
+    .team-endkarten {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+/* Cashflow */
+
+.cashflow-bereich {
+    margin-top: 24px;
+    padding: 18px;
+
+    background-color: #fffaf0;
+
+    border: 1px solid #e4ce99;
+    border-radius: 14px;
+}
+
+.cashflow-bereich h2 {
+    margin-bottom: 14px;
+}
+
+.cashflow-bereich h3 {
+    margin: 20px 0 10px;
+
+    color: var(--green-dark);
+    font-size: 17px;
+}
+
+.siegeranzeige {
+    padding: 12px 14px;
+
+    background-color: #ffffff;
+
+    border: 1px solid #e4ce99;
+    border-radius: 10px;
+}
+
+.cashflow-uebersicht {
+    display: grid;
+    gap: 7px;
+
+    margin: 0;
+}
+
+.cashflow-uebersicht div {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+
+    padding: 8px 0;
+
+    border-bottom: 1px solid #eadbb7;
+}
+
+.cashflow-uebersicht div:last-child {
+    border-bottom: 0;
+}
+
+.cashflow-uebersicht dt {
+    color: var(--text-secondary);
+}
+
+.cashflow-uebersicht dd {
+    margin: 0;
+    font-weight: 700;
+}
+
+.cashflow-uebersicht .hervorgehoben {
+    color: var(--green-dark);
+    font-weight: 700;
+}
+
+.zahlungsliste {
+    display: grid;
+    gap: 9px;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+}
+
+.zahlungsliste li {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px 12px;
+
+    padding: 13px 14px;
+
+    background-color: #ffffff;
+
+    border: 1px solid #e4ce99;
+    border-radius: 10px;
+}
+
+.zahlungsliste li span {
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.zahlungsliste li b {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+
+    align-self: center;
+
+    color: var(--green-dark);
+    font-size: 18px;
+}
+/* Team-Zwischenstand auf der Lochmaske */
+
+.loch-kopf {
+    position: relative;
+}
+
+.team-zwischenstand {
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    padding: 6px 10px;
+
+    border-radius: 999px;
+
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.team-zwischenstand.stand-even {
+    background-color: #eef1ef;
+    color: #57635b;
+}
+
+.team-zwischenstand.stand-team-1 {
+    background-color: #d9ecdf;
+    color: #155c35;
+}
+
+.team-zwischenstand.stand-team-2 {
+    background-color: #e0e6f3;
+    color: #304a82;
+}
