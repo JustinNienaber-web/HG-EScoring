@@ -863,13 +863,22 @@ function erzeugeViererAbrechnung(teamwerte) {
     const cashflow =
         berechneViererCashflow(teamwerte);
 
+    const ersterSiegerIndex =
+        cashflow.siegerTeamIndex * 2;
+
+    const siegerNamen = `
+        ${laufendeRunde.spieler[ersterSiegerIndex].name}
+        &amp;
+        ${laufendeRunde.spieler[ersterSiegerIndex + 1].name}
+    `;
+
     return `
         <section class="cashflow-bereich">
             <h2>Abrechnung</h2>
 
             <p class="siegeranzeige">
                 Team ${cashflow.siegerTeamIndex + 1}
-                gewinnt nach
+                (${siegerNamen}) gewinnt nach
                 <strong>${cashflow.entscheidung}</strong>.
             </p>
 
@@ -921,6 +930,271 @@ function erzeugeViererAbrechnung(teamwerte) {
     `;
 }
 
+function berechneScorekartenSumme(
+    lochnummern,
+    spielerIndex
+) {
+    return lochnummern.reduce(
+        (summe, lochnummer) =>
+            summe
+            + laufendeRunde
+                .ergebnisse[lochnummer]
+                .spieler[spielerIndex]
+                .schlaege,
+        0
+    );
+}
+
+function erzeugeSonderpunktKuerzel(
+    ergebnis,
+    loch,
+    istNeary
+) {
+    let kuerzel = "";
+
+    if (ergebnis.sandy) {
+        kuerzel += "S";
+    }
+
+    if (istNeary) {
+        kuerzel += "N";
+    }
+
+    if (ergebnis.schlaege === loch.par - 1) {
+        kuerzel += "B";
+    }
+
+    if (ergebnis.schlaege <= loch.par - 2) {
+        kuerzel += "E";
+    }
+
+    if (kuerzel === "") {
+        return "";
+    }
+
+    return `
+        <small class="sonderpunkt-kuerzel">
+            (${kuerzel})
+        </small>
+    `;
+}
+
+function erzeugeScorekartenLochzeilen(lochnummern) {
+    return lochnummern
+        .map(
+            (lochnummer) => {
+                const loch = findeLoch(lochnummer);
+                const lochergebnis =
+                    laufendeRunde.ergebnisse[lochnummer];
+
+                const scores = laufendeRunde.spieler
+                    .map(
+                        (_, spielerIndex) => {
+                            const ergebnis =
+                                lochergebnis
+                                    .spieler[spielerIndex];
+
+                            const istNeary =
+                                lochergebnis
+                                    .nearySpielerIndex
+                                === spielerIndex;
+
+                            return `
+                                <td>
+                                    <span class="scorekarten-wert">
+                                        ${ergebnis.schlaege}
+                                        ${erzeugeSonderpunktKuerzel(
+                                            ergebnis,
+                                            loch,
+                                            istNeary
+                                        )}
+                                    </span>
+                                </td>
+                            `;
+                        }
+                    )
+                    .join("");
+
+                return `
+                    <tr>
+                        <th scope="row">${loch.nummer}</th>
+                        <td>${loch.par}</td>
+                        <td>${loch.hcp}</td>
+                        ${scores}
+                    </tr>
+                `;
+            }
+        )
+        .join("");
+}
+
+function erzeugeScorekartenZwischensumme(
+    beschriftung,
+    lochnummern
+) {
+    const parSumme = lochnummern.reduce(
+        (summe, lochnummer) =>
+            summe + findeLoch(lochnummer).par,
+        0
+    );
+
+    const spielerSummen = laufendeRunde.spieler
+        .map(
+            (_, spielerIndex) => `
+                <td>
+                    ${berechneScorekartenSumme(
+                        lochnummern,
+                        spielerIndex
+                    )}
+                </td>
+            `
+        )
+        .join("");
+
+    return `
+        <tr class="scorekarten-zwischensumme">
+            <th scope="row">${beschriftung}</th>
+            <td>${parSumme}</td>
+            <td>–</td>
+            ${spielerSummen}
+        </tr>
+    `;
+}
+
+function erzeugeScorekartenGesamtsumme(
+    beschriftung,
+    werte
+) {
+    const wertZellen = werte
+        .map(
+            (wert) => `<td>${wert}</td>`
+        )
+        .join("");
+
+    return `
+        <tr class="scorekarten-gesamtsumme">
+            <th scope="row" colspan="3">
+                ${beschriftung}
+            </th>
+            ${wertZellen}
+        </tr>
+    `;
+}
+
+function zeigeScorekarte() {
+    const frontNeun = [
+        1, 2, 3, 4, 5, 6, 7, 8, 9,
+    ];
+
+    const backNeun = [
+        10, 11, 12, 13, 14, 15, 16, 17, 18,
+    ];
+
+    const alleLoecher = [
+        ...frontNeun,
+        ...backNeun,
+    ];
+
+    const bruttoSummen = laufendeRunde.spieler
+        .map(
+            (_, spielerIndex) =>
+                berechneScorekartenSumme(
+                    alleLoecher,
+                    spielerIndex
+                )
+        );
+
+    const nettoSummen = bruttoSummen.map(
+        (brutto, spielerIndex) =>
+            brutto
+            - laufendeRunde
+                .spieler[spielerIndex]
+                .platzvorgabe
+    );
+
+    const kopfSpieler = laufendeRunde.spieler
+        .map(
+            (spieler) => `
+                <th scope="col" class="spieler-spalte">
+                    ${spieler.name}
+                </th>
+            `
+        )
+        .join("");
+
+    startkarte.innerHTML = `
+        <div class="loch-kopf">
+            <span>Runde abgeschlossen</span>
+            <h2>Scorekarte</h2>
+        </div>
+
+        <section class="scorekarten-tabelle-bereich">
+            <table class="scorekarten-tabelle">
+                <thead>
+                    <tr>
+                        <th scope="col">Bahn</th>
+                        <th scope="col">Par</th>
+                        <th scope="col">HCP</th>
+                        ${kopfSpieler}
+                    </tr>
+                </thead>
+
+                <tbody>
+                    ${erzeugeScorekartenLochzeilen(
+                        frontNeun
+                    )}
+
+                    ${erzeugeScorekartenZwischensumme(
+                        "1–9",
+                        frontNeun
+                    )}
+
+                    ${erzeugeScorekartenLochzeilen(
+                        backNeun
+                    )}
+
+                    ${erzeugeScorekartenZwischensumme(
+                        "10–18",
+                        backNeun
+                    )}
+
+                    ${erzeugeScorekartenGesamtsumme(
+                        "Brutto",
+                        bruttoSummen
+                    )}
+
+                    ${erzeugeScorekartenGesamtsumme(
+                        "Netto",
+                        nettoSummen
+                    )}
+                </tbody>
+            </table>
+        </section>
+
+        <p class="scorekarten-legende">
+            <span>(S) Sandy</span>
+            <span>(N) Neary</span>
+            <span>(B) Birdie</span>
+            <span>(E) Eagle oder besser</span>
+        </p>
+
+        <button
+            id="zurueck-zur-auswertung-button"
+            class="primary-button"
+            type="button"
+        >
+            Zurück zur Auswertung
+        </button>
+    `;
+
+    document
+        .querySelector("#zurueck-zur-auswertung-button")
+        .addEventListener(
+            "click",
+            zeigeEndauswertung
+        );
+}
+
 function zeigeEndauswertung() {
     const auswertung =
         berechneRundenauswertung();
@@ -949,6 +1223,14 @@ function zeigeEndauswertung() {
             auswertung.teamwerte
         )}
 
+        <button
+            id="scorekarte-anzeigen-button"
+            class="secondary-button"
+            type="button"
+        >
+            Scorekarte anzeigen
+        </button>
+
         <div class="end-navigation">
             <button
                 id="zurueck-zur-runde-button"
@@ -967,6 +1249,13 @@ function zeigeEndauswertung() {
             </button>
         </div>
     `;
+
+    document
+        .querySelector("#scorekarte-anzeigen-button")
+        .addEventListener(
+            "click",
+            zeigeScorekarte
+        );
 
     document
         .querySelector("#zurueck-zur-runde-button")
