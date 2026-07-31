@@ -834,6 +834,7 @@ function berechtigteNearySpieler(loch) {
         .filter(
             (eintrag) =>
                 eintrag.ergebnis.schlaege <= loch.par
+                && !eintrag.ergebnis.sandy
         );
 }
 
@@ -976,6 +977,15 @@ function zeigeLochmaske() {
 
     startkarte.innerHTML = `
         <div class="loch-kopf">
+            <button
+                id="home-button"
+                class="home-button"
+                type="button"
+                aria-label="Zum Startbildschirm"
+            >
+                &#8962; Home
+            </button>
+
             ${teamZwischenstand}
 
             <span>
@@ -1020,6 +1030,13 @@ function zeigeLochmaske() {
     `;
 
     document
+        .querySelector("#home-button")
+        .addEventListener(
+            "click",
+            geheZumStartbildschirm
+        );
+
+    document
         .querySelectorAll("[data-aktion]")
         .forEach(
             (element) => {
@@ -1056,6 +1073,11 @@ function zeigeLochmaske() {
         );
 }
 
+function geheZumStartbildschirm() {
+    speichereRunde();
+    zeigeStartbildschirm();
+}
+
 function verarbeiteScoreAktion(event) {
     const aktion = event.currentTarget.dataset.aktion;
 
@@ -1085,6 +1107,17 @@ function verarbeiteScoreAktion(event) {
     if (aktion === "sandy") {
         ergebnis.sandy =
             event.currentTarget.checked;
+
+        const lochergebnis =
+            laufendeRunde.ergebnisse[lochnummer];
+
+        if (
+            ergebnis.sandy
+            && lochergebnis.nearySpielerIndex
+                === spielerIndex
+        ) {
+            lochergebnis.nearySpielerIndex = null;
+        }
     }
 
     if (ergebnis.schlaege > loch.par) {
