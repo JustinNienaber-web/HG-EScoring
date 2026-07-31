@@ -1041,3 +1041,7 @@ input:focus-visible {
 #scorekarte-anzeigen-button {
     margin-top: 1rem;
 }
+.scorekarten-gesamtsumme:last-child th,
+.scorekarten-gesamtsumme:last-child td {
+    color: #ffffff;
+}
