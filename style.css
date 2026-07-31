@@ -5,7 +5,7 @@
     --green-medium: #26784a;
     --green-light: #e9f3ec;
     --green-pale: #f5faf6;
- 
+
     --page-background: #f3f6f2;
     --card-background: #ffffff;
 
@@ -1044,4 +1044,12 @@ input:focus-visible {
 .scorekarten-gesamtsumme:last-child th,
 .scorekarten-gesamtsumme:last-child td {
     color: #ffffff;
+}
+html,
+body,
+button,
+input,
+select,
+label {
+    touch-action: manipulation;
 }

@@ -1,15 +1,17 @@
 "use strict";
 
-const CACHE_NAME = "hg-escoring-v1";
+const CACHE_NAME = "hg-escoring-v2";
 
 const APP_DATEIEN = [
     "./",
     "./index.html",
     "./style.css",
+    "./app.js",
     "./platzdaten.js",
     "./auswertung.js",
-    "./app.js",
     "./manifest.json",
+    "./icon-192.png",
+    "./icon-512.png",
 ];
 
 self.addEventListener(
@@ -22,9 +24,8 @@ self.addEventListener(
                     (cache) =>
                         cache.addAll(APP_DATEIEN)
                 )
+                .then(() => self.skipWaiting())
         );
-
-        self.skipWaiting();
     }
 );
 
@@ -40,20 +41,16 @@ self.addEventListener(
                             cacheNamen
                                 .filter(
                                     (cacheName) =>
-                                        cacheName !==
-                                        CACHE_NAME
+                                        cacheName !== CACHE_NAME
                                 )
                                 .map(
                                     (cacheName) =>
-                                        caches.delete(
-                                            cacheName
-                                        )
+                                        caches.delete(cacheName)
                                 )
                         )
                 )
+                .then(() => self.clients.claim())
         );
-
-        self.clients.claim();
     }
 );
 
@@ -84,8 +81,7 @@ self.addEventListener(
                     }
                 )
                 .catch(
-                    () =>
-                        caches.match(event.request)
+                    () => caches.match(event.request)
                 )
         );
     }
