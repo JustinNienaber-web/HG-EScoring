@@ -869,3 +869,175 @@ input:focus-visible {
     background-color: #e0e6f3;
     color: #304a82;
 }
+/* --------------------------------------------------
+   Home-Button während der Runde
+-------------------------------------------------- */
+
+.loch-kopf {
+    position: relative;
+    padding-top: 2.8rem;
+}
+
+.home-button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: auto;
+    min-height: 2.25rem;
+    padding: 0.45rem 0.75rem;
+    border: 1px solid #c9d8ce;
+    border-radius: 0.7rem;
+    background: #ffffff;
+    color: #155c35;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.home-button:hover {
+    background: #edf5ef;
+}
+
+.home-button:active {
+    transform: translateY(1px);
+}
+/* --------------------------------------------------
+   Kompakte Scorekarte
+-------------------------------------------------- */
+
+.scorekarten-tabelle-bereich {
+    width: 100%;
+    margin: 1rem 0;
+    overflow: hidden;
+    border: 1px solid #d5e0d8;
+    border-radius: 0.8rem;
+    background: #ffffff;
+}
+
+.scorekarten-tabelle {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 0.78rem;
+    text-align: center;
+}
+
+.scorekarten-tabelle th,
+.scorekarten-tabelle td {
+    height: 2rem;
+    padding: 0.25rem 0.08rem;
+    border-right: 1px solid #dce5df;
+    border-bottom: 1px solid #dce5df;
+    line-height: 1.05;
+    vertical-align: middle;
+}
+
+.scorekarten-tabelle th:last-child,
+.scorekarten-tabelle td:last-child {
+    border-right: 0;
+}
+
+.scorekarten-tabelle thead th {
+    padding: 0.45rem 0.08rem;
+    background: #155c35;
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+.scorekarten-tabelle thead th:nth-child(1) {
+    width: 11%;
+}
+
+.scorekarten-tabelle thead th:nth-child(2) {
+    width: 9%;
+}
+
+.scorekarten-tabelle thead th:nth-child(3) {
+    width: 10%;
+}
+
+.scorekarten-tabelle .spieler-spalte {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.scorekarten-tabelle tbody th {
+    color: #155c35;
+    font-weight: 800;
+}
+
+.scorekarten-tabelle tbody tr:nth-child(even) {
+    background: #f6f9f7;
+}
+
+.scorekarten-wert {
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.06rem;
+    white-space: nowrap;
+    font-weight: 700;
+}
+
+.sonderpunkt-kuerzel {
+    color: #c62828;
+    font-size: 0.58rem;
+    font-weight: 900;
+}
+
+.scorekarten-zwischensumme {
+    background: #e5efe8 !important;
+    color: #104b2c;
+    font-weight: 900;
+}
+
+.scorekarten-gesamtsumme {
+    background: #d4e5d9 !important;
+    color: #0d4327;
+    font-weight: 900;
+}
+
+.scorekarten-gesamtsumme:last-child {
+    background: #155c35 !important;
+    color: #ffffff;
+}
+
+.scorekarten-legende {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.75rem;
+    margin: 0 0 1rem;
+    color: #66736b;
+    font-size: 0.72rem;
+}
+
+.scorekarten-legende span {
+    white-space: nowrap;
+}
+
+@media (max-width: 420px) {
+    .scorekarten-tabelle {
+        font-size: 0.7rem;
+    }
+
+    .scorekarten-tabelle th,
+    .scorekarten-tabelle td {
+        height: 1.85rem;
+        padding-right: 0.03rem;
+        padding-left: 0.03rem;
+    }
+
+    .scorekarten-tabelle thead th {
+        font-size: 0.62rem;
+    }
+
+    .sonderpunkt-kuerzel {
+        font-size: 0.5rem;
+    }
+}
+#scorekarte-anzeigen-button {
+    margin-top: 1rem;
+}
