@@ -3,6 +3,7 @@
 const SPEICHERSCHLUESSEL = "hg-escoring-laufende-runde";
 
 const startkarte = document.querySelector(".card");
+const appKopfzeile = document.querySelector(".app-header");
 
 let rundeneinstellungen = {
     flightgroesse: 3,
@@ -11,6 +12,16 @@ let rundeneinstellungen = {
 };
 
 let laufendeRunde = null;
+
+function zeigeAppKopfzeile(sichtbar) {
+    appKopfzeile.style.display =
+        sichtbar ? "flex" : "none";
+
+    document.body.classList.toggle(
+        "rundenansicht",
+        !sichtbar
+    );
+}
 
 function kaufmaennischRunden(wert) {
     if (wert >= 0) {
@@ -245,6 +256,7 @@ function initialisiereLochergebnisse() {
 }
 
 function zeigeStartbildschirm() {
+    zeigeAppKopfzeile(true);
     laufendeRunde = ladeGespeicherteRunde();
 
     if (laufendeRunde) {
@@ -363,6 +375,7 @@ function bestaetigeNeueRunde() {
 }
 
 function zeigeRundeneinrichtung() {
+    zeigeAppKopfzeile(false);
     startkarte.innerHTML = `
         <h2>Neue Runde</h2>
 
@@ -958,6 +971,7 @@ function erzeugeBahnwechselButtons(
 }
 
 function zeigeLochmaske() {
+    zeigeAppKopfzeile(false);
     const lochnummer = aktuelleLochnummer();
     const loch = findeLoch(lochnummer);
 
@@ -1179,6 +1193,7 @@ function zeigeLochmaske() {
 }
 
 function zeigeBahnauswahlseite() {
+    zeigeAppKopfzeile(false);
     const aktuelleBahn = aktuelleLochnummer();
 
     startkarte.innerHTML = `

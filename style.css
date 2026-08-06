@@ -43,6 +43,10 @@ body {
         sans-serif;
 }
 
+body.rundenansicht {
+    padding-top: 8px;
+}
+
 button,
 input,
 select {
@@ -875,7 +879,7 @@ input:focus-visible {
 
 .loch-kopf {
     position: relative;
-    padding-top: 2.8rem;
+    padding-top: 0;
 }
 
 .home-button {
