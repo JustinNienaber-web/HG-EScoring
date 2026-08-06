@@ -1053,3 +1053,149 @@ select,
 label {
     touch-action: manipulation;
 }
+
+/* Direkte Bahnnavigation */
+
+.bahnwechsel-oeffnen-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: auto;
+    min-height: 44px;
+    margin: 0 auto 12px;
+    padding: 2px 12px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    background-color: transparent;
+    color: var(--text-primary);
+    box-shadow: none;
+    font: inherit;
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.15;
+    cursor: pointer;
+}
+
+.bahnwechsel-oeffnen-button:hover,
+.bahnwechsel-oeffnen-button:focus-visible {
+    border-color: var(--green-light);
+    background-color: var(--green-pale);
+    outline: none;
+}
+
+.bahnwechsel-pfeil {
+    font-size: 21px;
+    line-height: 1;
+    transform: translateY(-2px);
+}
+
+.bahnwechsel-seitenkopf {
+    margin-bottom: 18px;
+    text-align: center;
+}
+
+.bahnwechsel-seitenkopf span {
+    display: block;
+    margin-bottom: 3px;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.bahnwechsel-seitenkopf h2 {
+    margin: 0;
+    color: var(--green-dark);
+    font-size: 26px;
+}
+
+.bahnwechsel-spalten {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.bahnwechsel-gruppe {
+    padding: 10px;
+    border: 1px solid var(--green-light);
+    border-radius: 14px;
+    background-color: var(--green-pale);
+}
+
+.bahnwechsel-gruppe h3 {
+    margin: 1px 0 9px;
+    color: var(--green-dark);
+    font-size: 17px;
+    text-align: center;
+}
+
+.bahnwechsel-liste {
+    display: grid;
+    gap: 7px;
+}
+
+.bahnwechsel-button {
+    width: 100%;
+    min-height: 40px;
+    padding: 7px 4px;
+    border: 1px solid var(--green-light);
+    border-radius: 10px;
+    background-color: #ffffff;
+    color: var(--green-dark);
+    box-shadow: none;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.bahnwechsel-button:hover,
+.bahnwechsel-button:focus-visible {
+    border-color: var(--green-dark);
+    background-color: #eef7f1;
+    outline: none;
+}
+
+.bahnwechsel-button.aktuell {
+    border-color: var(--green-dark);
+    background-color: var(--green-dark);
+    color: #ffffff;
+}
+
+.bahnwechsel-abbrechen-button {
+    width: 100%;
+    margin-top: 14px;
+}
+
+/* Optionaler Zwischenstand unter der Loch-Navigation */
+
+.zwischenstand-button {
+    width: 100%;
+    margin-top: 12px;
+    background-color: #f7faf8;
+    color: var(--text-secondary);
+    box-shadow: none;
+}
+
+.zwischenstand-button:hover {
+    background-color: var(--green-pale);
+    color: var(--green-dark);
+}
+
+.eingabefeld input::placeholder {
+    color: #8b9690;
+    opacity: 1;
+}
+
+@media (max-width: 420px) {
+    .bahnwechsel-oeffnen-button {
+        font-size: 29px;
+    }
+
+    .bahnwechsel-spalten {
+        gap: 8px;
+    }
+
+    .bahnwechsel-gruppe {
+        padding: 8px;
+    }
+}

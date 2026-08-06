@@ -143,7 +143,9 @@ function ermittleTeamLochpunkte(nettoscores) {
     return ergebnis;
 }
 
-function berechneRundenauswertung() {
+function berechneRundenauswertung(
+    nurBestaetigteLoecher = false
+) {
     const spielerwerte = laufendeRunde.spieler.map(
         (spieler) => ({
             name: spieler.name,
@@ -194,6 +196,13 @@ function berechneRundenauswertung() {
 
         const lochergebnis =
             laufendeRunde.ergebnisse[lochnummer];
+
+        if (
+            nurBestaetigteLoecher
+            && !lochergebnis.bestaetigt
+        ) {
+            continue;
+        }
 
         const zockNettoscores = [];
 
@@ -932,16 +941,74 @@ function erzeugeViererAbrechnung(teamwerte) {
 
 function berechneScorekartenSumme(
     lochnummern,
-    spielerIndex
+    spielerIndex,
+    nurBestaetigteLoecher = false
 ) {
     return lochnummern.reduce(
-        (summe, lochnummer) =>
-            summe
-            + laufendeRunde
-                .ergebnisse[lochnummer]
-                .spieler[spielerIndex]
-                .schlaege,
+        (summe, lochnummer) => {
+            const lochergebnis =
+                laufendeRunde.ergebnisse[lochnummer];
+
+            if (
+                nurBestaetigteLoecher
+                && !lochergebnis.bestaetigt
+            ) {
+                return summe;
+            }
+
+            return summe
+                + lochergebnis
+                    .spieler[spielerIndex]
+                    .schlaege;
+        },
         0
+    );
+}
+
+function berechneScorekartenNettoSumme(
+    lochnummern,
+    spielerIndex,
+    nurBestaetigteLoecher = false
+) {
+    const spieler =
+        laufendeRunde.spieler[spielerIndex];
+
+    return lochnummern.reduce(
+        (summe, lochnummer) => {
+            const lochergebnis =
+                laufendeRunde.ergebnisse[lochnummer];
+
+            if (
+                nurBestaetigteLoecher
+                && !lochergebnis.bestaetigt
+            ) {
+                return summe;
+            }
+
+            const loch = findeLoch(lochnummer);
+
+            const vorgabeschlaege =
+                berechneVorgabeschlaege(
+                    spieler.platzvorgabe,
+                    loch.hcp
+                );
+
+            return summe
+                + lochergebnis
+                    .spieler[spielerIndex]
+                    .schlaege
+                - vorgabeschlaege;
+        },
+        0
+    );
+}
+
+function hatBestaetigteLoecher(lochnummern) {
+    return lochnummern.some(
+        (lochnummer) =>
+            laufendeRunde
+                .ergebnisse[lochnummer]
+                .bestaetigt
     );
 }
 
@@ -979,13 +1046,20 @@ function erzeugeSonderpunktKuerzel(
     `;
 }
 
-function erzeugeScorekartenLochzeilen(lochnummern) {
+function erzeugeScorekartenLochzeilen(
+    lochnummern,
+    nurBestaetigteLoecher = false
+) {
     return lochnummern
         .map(
             (lochnummer) => {
                 const loch = findeLoch(lochnummer);
                 const lochergebnis =
                     laufendeRunde.ergebnisse[lochnummer];
+
+                const lochIstSichtbar =
+                    !nurBestaetigteLoecher
+                    || lochergebnis.bestaetigt;
 
                 const scores = laufendeRunde.spieler
                     .map(
@@ -998,6 +1072,10 @@ function erzeugeScorekartenLochzeilen(lochnummern) {
                                 lochergebnis
                                     .nearySpielerIndex
                                 === spielerIndex;
+
+                            if (!lochIstSichtbar) {
+                                return "<td></td>";
+                            }
 
                             return `
                                 <td>
@@ -1030,9 +1108,23 @@ function erzeugeScorekartenLochzeilen(lochnummern) {
 
 function erzeugeScorekartenZwischensumme(
     beschriftung,
-    lochnummern
+    lochnummern,
+    nurBestaetigteLoecher = false
 ) {
-    const parSumme = lochnummern.reduce(
+    const beruecksichtigteLoecher =
+        nurBestaetigteLoecher
+            ? lochnummern.filter(
+                (lochnummer) =>
+                    laufendeRunde
+                        .ergebnisse[lochnummer]
+                        .bestaetigt
+            )
+            : lochnummern;
+
+    const hatErgebnisse =
+        beruecksichtigteLoecher.length > 0;
+
+    const parSumme = beruecksichtigteLoecher.reduce(
         (summe, lochnummer) =>
             summe + findeLoch(lochnummer).par,
         0
@@ -1042,10 +1134,12 @@ function erzeugeScorekartenZwischensumme(
         .map(
             (_, spielerIndex) => `
                 <td>
-                    ${berechneScorekartenSumme(
-                        lochnummern,
+                    ${hatErgebnisse
+                        ? berechneScorekartenSumme(
+                        beruecksichtigteLoecher,
                         spielerIndex
-                    )}
+                    )
+                        : ""}
                 </td>
             `
         )
@@ -1054,8 +1148,8 @@ function erzeugeScorekartenZwischensumme(
     return `
         <tr class="scorekarten-zwischensumme">
             <th scope="row">${beschriftung}</th>
-            <td>${parSumme}</td>
-            <td>–</td>
+            <td>${hatErgebnisse ? parSumme : ""}</td>
+            <td>${hatErgebnisse ? "–" : ""}</td>
             ${spielerSummen}
         </tr>
     `;
@@ -1081,7 +1175,10 @@ function erzeugeScorekartenGesamtsumme(
     `;
 }
 
-function zeigeScorekarte() {
+function zeigeScorekarte(modus = "ende") {
+    const istZwischenstand =
+        modus === "zwischenstand";
+
     const frontNeun = [
         1, 2, 3, 4, 5, 6, 7, 8, 9,
     ];
@@ -1100,17 +1197,34 @@ function zeigeScorekarte() {
             (_, spielerIndex) =>
                 berechneScorekartenSumme(
                     alleLoecher,
-                    spielerIndex
+                    spielerIndex,
+                    istZwischenstand
                 )
         );
 
-    const nettoSummen = bruttoSummen.map(
-        (brutto, spielerIndex) =>
-            brutto
-            - laufendeRunde
-                .spieler[spielerIndex]
-                .platzvorgabe
-    );
+    const nettoSummen = laufendeRunde.spieler
+        .map(
+            (_, spielerIndex) =>
+                berechneScorekartenNettoSumme(
+                    alleLoecher,
+                    spielerIndex,
+                    istZwischenstand
+                )
+        );
+
+    const hatErgebnisse =
+        !istZwischenstand
+        || hatBestaetigteLoecher(alleLoecher);
+
+    const angezeigteBruttoSummen =
+        hatErgebnisse
+            ? bruttoSummen
+            : bruttoSummen.map(() => "");
+
+    const angezeigteNettoSummen =
+        hatErgebnisse
+            ? nettoSummen
+            : nettoSummen.map(() => "");
 
     const kopfSpieler = laufendeRunde.spieler
         .map(
@@ -1124,7 +1238,11 @@ function zeigeScorekarte() {
 
     startkarte.innerHTML = `
         <div class="loch-kopf">
-            <span>Runde abgeschlossen</span>
+            <span>
+                ${istZwischenstand
+                    ? "Aktueller Stand"
+                    : "Runde abgeschlossen"}
+            </span>
             <h2>Scorekarte</h2>
         </div>
 
@@ -1141,31 +1259,35 @@ function zeigeScorekarte() {
 
                 <tbody>
                     ${erzeugeScorekartenLochzeilen(
-                        frontNeun
+                        frontNeun,
+                        istZwischenstand
                     )}
 
                     ${erzeugeScorekartenZwischensumme(
                         "1–9",
-                        frontNeun
+                        frontNeun,
+                        istZwischenstand
                     )}
 
                     ${erzeugeScorekartenLochzeilen(
-                        backNeun
+                        backNeun,
+                        istZwischenstand
                     )}
 
                     ${erzeugeScorekartenZwischensumme(
                         "10–18",
-                        backNeun
+                        backNeun,
+                        istZwischenstand
                     )}
 
                     ${erzeugeScorekartenGesamtsumme(
                         "Brutto",
-                        bruttoSummen
+                        angezeigteBruttoSummen
                     )}
 
                     ${erzeugeScorekartenGesamtsumme(
                         "Netto",
-                        nettoSummen
+                        angezeigteNettoSummen
                     )}
                 </tbody>
             </table>
@@ -1191,7 +1313,71 @@ function zeigeScorekarte() {
         .querySelector("#zurueck-zur-auswertung-button")
         .addEventListener(
             "click",
-            zeigeEndauswertung
+            istZwischenstand
+                ? zeigeZwischenstand
+                : zeigeEndauswertung
+        );
+}
+
+function zeigeZwischenstand() {
+    const auswertung =
+        berechneRundenauswertung(true);
+
+    startkarte.innerHTML = `
+        <div class="loch-kopf">
+            <span>Bestätigte Löcher</span>
+            <h2>Zwischenstand</h2>
+        </div>
+
+        <div class="endkarten">
+            ${erzeugeSpielerEndkarten(
+                auswertung.spielerwerte
+            )}
+        </div>
+
+        ${erzeugeTeamEndkarten(
+            auswertung.teamwerte
+        )}
+
+        ${erzeugeDreierAbrechnung(
+            auswertung.spielerwerte
+        )}
+
+        ${erzeugeViererAbrechnung(
+            auswertung.teamwerte
+        )}
+
+        <button
+            id="scorekarte-anzeigen-button"
+            class="secondary-button"
+            type="button"
+        >
+            Scorekarte anzeigen
+        </button>
+
+        <div class="end-navigation">
+            <button
+                id="zurueck-zur-runde-button"
+                class="primary-button"
+                type="button"
+            >
+                Zurück zur aktuellen Bahn
+            </button>
+        </div>
+    `;
+
+    document
+        .querySelector("#scorekarte-anzeigen-button")
+        .addEventListener(
+            "click",
+            () => zeigeScorekarte("zwischenstand")
+        );
+
+    document
+        .querySelector("#zurueck-zur-runde-button")
+        .addEventListener(
+            "click",
+            zeigeLochmaske
         );
 }
 
@@ -1254,7 +1440,7 @@ function zeigeEndauswertung() {
         .querySelector("#scorekarte-anzeigen-button")
         .addEventListener(
             "click",
-            zeigeScorekarte
+            () => zeigeScorekarte("ende")
         );
 
     document

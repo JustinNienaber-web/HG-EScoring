@@ -102,7 +102,38 @@ function ladeGespeicherteRunde() {
     }
 
     try {
-        return JSON.parse(gespeicherteDaten);
+        const gespeicherteRunde =
+            JSON.parse(gespeicherteDaten);
+
+        let wurdeMigriert = false;
+
+        gespeicherteRunde.lochfolge.forEach(
+            (lochnummer, index) => {
+                const lochergebnis =
+                    gespeicherteRunde
+                        .ergebnisse[lochnummer];
+
+                if (
+                    typeof lochergebnis.bestaetigt
+                    !== "boolean"
+                ) {
+                    lochergebnis.bestaetigt =
+                        index
+                        < gespeicherteRunde.aktuellerIndex;
+
+                    wurdeMigriert = true;
+                }
+            }
+        );
+
+        if (wurdeMigriert) {
+            localStorage.setItem(
+                SPEICHERSCHLUESSEL,
+                JSON.stringify(gespeicherteRunde)
+            );
+        }
+
+        return gespeicherteRunde;
     } catch {
         localStorage.removeItem(SPEICHERSCHLUESSEL);
         return null;
@@ -193,6 +224,8 @@ function initialisiereLochergebnisse() {
         const loch = findeLoch(lochnummer);
 
         ergebnisse[lochnummer] = {
+            bestaetigt: false,
+
             spieler: laufendeRunde.spieler.map(
                 (spieler) => ({
                     schlaege: standardScore(
@@ -465,11 +498,16 @@ function erzeugeSpielerfelder() {
 
         const name = vorhandenerSpieler
             ? vorhandenerSpieler.name
-            : `Spieler ${spielernummer}`;
+            : "";
 
         const handicap = vorhandenerSpieler
             ? vorhandenerSpieler.handicap
-            : 0;
+            : null;
+
+        const handicapWert =
+            handicap === null
+                ? ""
+                : handicap.toFixed(1);
 
         const istVierer =
             rundeneinstellungen.flightgroesse === 4;
@@ -502,6 +540,7 @@ function erzeugeSpielerfelder() {
                         type="text"
                         name="spielername-${index}"
                         value="${name}"
+                        placeholder="Spieler ${spielernummer}"
                         autocomplete="off"
                         required
                     >
@@ -513,7 +552,8 @@ function erzeugeSpielerfelder() {
                     <input
                         type="number"
                         name="handicap-${index}"
-                        value="${handicap.toFixed(1)}"
+                        value="${handicapWert}"
+                        placeholder="0,0"
                         min="-10"
                         max="54"
                         step="0.1"
@@ -886,6 +926,37 @@ function erzeugeNearyAuswahl(loch) {
     `;
 }
 
+function erzeugeBahnwechselButtons(
+    ersteBahn,
+    letzteBahn,
+    aktuelleBahn
+) {
+    let buttons = "";
+
+    for (
+        let bahnnummer = ersteBahn;
+        bahnnummer <= letzteBahn;
+        bahnnummer += 1
+    ) {
+        const aktuelleKlasse =
+            bahnnummer === aktuelleBahn
+                ? " aktuell"
+                : "";
+
+        buttons += `
+            <button
+                class="bahnwechsel-button${aktuelleKlasse}"
+                type="button"
+                data-bahn="${bahnnummer}"
+            >
+                Bahn ${bahnnummer}
+            </button>
+        `;
+    }
+
+    return buttons;
+}
+
 function zeigeLochmaske() {
     const lochnummer = aktuelleLochnummer();
     const loch = findeLoch(lochnummer);
@@ -902,12 +973,9 @@ function zeigeLochmaske() {
         const teamPunkte = [0, 0];
 
         for (
-            let index = 0;
-            index <= laufendeRunde.aktuellerIndex;
-            index += 1
+            const bisherigeLochnummer
+            of laufendeRunde.lochfolge
         ) {
-            const bisherigeLochnummer =
-                laufendeRunde.lochfolge[index];
 
             const bisherigesLoch =
                 findeLoch(bisherigeLochnummer);
@@ -915,6 +983,13 @@ function zeigeLochmaske() {
             const bisherigesErgebnis =
                 laufendeRunde
                     .ergebnisse[bisherigeLochnummer];
+
+            if (
+                !bisherigesErgebnis.bestaetigt
+                && bisherigeLochnummer !== lochnummer
+            ) {
+                continue;
+            }
 
             const nettoscores =
                 bisherigesErgebnis.spieler.map(
@@ -988,12 +1063,20 @@ function zeigeLochmaske() {
 
             ${teamZwischenstand}
 
-            <span>
-                ${laufendeRunde.aktuellerIndex + 1}
-                von 18
-            </span>
-
-            <h2>Bahn ${loch.nummer}</h2>
+            <button
+                id="bahnwechsel-oeffnen-button"
+                class="bahnwechsel-oeffnen-button"
+                type="button"
+                aria-label="Andere Bahn auswählen"
+            >
+                <span>Bahn ${loch.nummer}</span>
+                <span
+                    class="bahnwechsel-pfeil"
+                    aria-hidden="true"
+                >
+                    &#8964;
+                </span>
+            </button>
 
             <div class="lochdaten">
                 <strong>Par ${loch.par}</strong>
@@ -1027,6 +1110,14 @@ function zeigeLochmaske() {
                     : "Weiter"}
             </button>
         </div>
+
+        <button
+            id="zwischenstand-button"
+            class="secondary-button zwischenstand-button"
+            type="button"
+        >
+            Zwischenstand anzeigen
+        </button>
     `;
 
     document
@@ -1059,6 +1150,13 @@ function zeigeLochmaske() {
     }
 
     document
+        .querySelector("#bahnwechsel-oeffnen-button")
+        .addEventListener(
+            "click",
+            zeigeBahnauswahlseite
+        );
+
+    document
         .querySelector("#vorheriges-loch-button")
         .addEventListener(
             "click",
@@ -1071,6 +1169,87 @@ function zeigeLochmaske() {
             "click",
             geheZumNaechstenLoch
         );
+
+    document
+        .querySelector("#zwischenstand-button")
+        .addEventListener(
+            "click",
+            zeigeZwischenstand
+        );
+}
+
+function zeigeBahnauswahlseite() {
+    const aktuelleBahn = aktuelleLochnummer();
+
+    startkarte.innerHTML = `
+        <div class="bahnwechsel-seitenkopf">
+            <span>Direkte Navigation</span>
+            <h2>Gehe zu Bahn</h2>
+        </div>
+
+        <div class="bahnwechsel-spalten">
+            <section class="bahnwechsel-gruppe">
+                <h3>Front 9</h3>
+                <div class="bahnwechsel-liste">
+                    ${erzeugeBahnwechselButtons(
+                        1,
+                        9,
+                        aktuelleBahn
+                    )}
+                </div>
+            </section>
+
+            <section class="bahnwechsel-gruppe">
+                <h3>Back 9</h3>
+                <div class="bahnwechsel-liste">
+                    ${erzeugeBahnwechselButtons(
+                        10,
+                        18,
+                        aktuelleBahn
+                    )}
+                </div>
+            </section>
+        </div>
+
+        <button
+            id="bahnwechsel-abbrechen-button"
+            class="secondary-button bahnwechsel-abbrechen-button"
+            type="button"
+        >
+            Zurück zur aktuellen Bahn
+        </button>
+    `;
+
+    document
+        .querySelectorAll("[data-bahn]")
+        .forEach((button) => {
+            button.addEventListener(
+                "click",
+                wechsleZuAusgewaehlterBahn
+            );
+        });
+
+    document
+        .querySelector("#bahnwechsel-abbrechen-button")
+        .addEventListener("click", zeigeLochmaske);
+}
+
+function wechsleZuAusgewaehlterBahn(event) {
+    const lochnummer = Number(
+        event.currentTarget.dataset.bahn
+    );
+
+    const neuerIndex =
+        laufendeRunde.lochfolge.indexOf(lochnummer);
+
+    if (neuerIndex === -1) {
+        return;
+    }
+
+    laufendeRunde.aktuellerIndex = neuerIndex;
+
+    speichereRunde();
+    zeigeLochmaske();
 }
 
 function geheZumStartbildschirm() {
@@ -1173,6 +1352,14 @@ function geheZumVorherigenLoch() {
 }
 
 function geheZumNaechstenLoch() {
+    const lochnummer = aktuelleLochnummer();
+
+    laufendeRunde
+        .ergebnisse[lochnummer]
+        .bestaetigt = true;
+
+    speichereRunde();
+
     if (laufendeRunde.aktuellerIndex === 17) {
         zeigeEndauswertung();
         return;
@@ -1180,7 +1367,6 @@ function geheZumNaechstenLoch() {
 
     laufendeRunde.aktuellerIndex += 1;
 
-    speichereRunde();
     zeigeLochmaske();
 }
 
