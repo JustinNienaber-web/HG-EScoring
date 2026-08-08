@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_NAME = "hg-escoring-v3";
+const CACHE_NAME = "hg-escoring-v5";
 
 const APP_DATEIEN = [
     "./",

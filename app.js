@@ -46,8 +46,19 @@ function berechneZockvorgabe(
     platzvorgabe,
     niedrigstePlatzvorgabe
 ) {
+    const anrechenbarePlatzvorgabe = Math.min(
+        platzvorgabe,
+        36
+    );
+
+    const anrechenbareNiedrigstePlatzvorgabe = Math.min(
+        niedrigstePlatzvorgabe,
+        36
+    );
+
     const differenz =
-        platzvorgabe - niedrigstePlatzvorgabe;
+        anrechenbarePlatzvorgabe
+        - anrechenbareNiedrigstePlatzvorgabe;
 
     return kaufmaennischRunden(
         differenz * 0.75
