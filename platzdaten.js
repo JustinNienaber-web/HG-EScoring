@@ -13,7 +13,7 @@ const PLATZ = {
         { nummer: 4, par: 5, hcp: 5 },
         { nummer: 5, par: 3, hcp: 17 },
         { nummer: 6, par: 4, hcp: 7 },
-        { nummer: 7, par: 3, hcp: 3 },
+        { nummer: 7, par: 4, hcp: 3 },
         { nummer: 8, par: 4, hcp: 1 },
         { nummer: 9, par: 5, hcp: 11 },
         { nummer: 10, par: 4, hcp: 8 },
