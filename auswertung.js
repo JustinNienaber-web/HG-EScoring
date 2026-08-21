@@ -72,9 +72,6 @@ function ermittleEinzelLochpunkte(nettoscores) {
     if (nettoscores.length === 2) {
         if (gewinner.length === 1) {
             lochpunkte[gewinner[0]] = 1;
-        } else {
-            lochpunkte[0] = 0.5;
-            lochpunkte[1] = 0.5;
         }
 
         return lochpunkte;
@@ -502,6 +499,52 @@ function begrenzeZahlungenAufZehnEuro(
     );
 }
 
+function berechneZweierCashflow(spielerwerte) {
+    const gesamtpunkte = spielerwerte.map(
+        (spieler) =>
+            spieler.lochpunkte
+            + spieler.sonderpunkte
+    );
+
+    const differenz = Math.abs(
+        gesamtpunkte[0] - gesamtpunkte[1]
+    );
+
+    if (differenz === 0) {
+        return {
+            gesamtpunkte,
+            differenz,
+            auszahlung: 0,
+            gewinnerIndex: null,
+            zahlungen: [],
+        };
+    }
+
+    const gewinnerIndex =
+        gesamtpunkte[0] > gesamtpunkte[1]
+            ? 0
+            : 1;
+
+    const verliererIndex =
+        gewinnerIndex === 0 ? 1 : 0;
+
+    const auszahlung = Math.min(10, differenz);
+
+    return {
+        gesamtpunkte,
+        differenz,
+        auszahlung,
+        gewinnerIndex,
+        zahlungen: [
+            {
+                von: verliererIndex,
+                an: gewinnerIndex,
+                betrag: auszahlung,
+            },
+        ],
+    };
+}
+
 function berechneDreierCashflow(spielerwerte) {
     const gesamtpunkte = spielerwerte.map(
         (spieler) =>
@@ -807,6 +850,92 @@ function erzeugeZahlungsliste(zahlungen) {
             `
         )
         .join("");
+}
+
+function erzeugeZweierAbrechnung(spielerwerte) {
+    if (laufendeRunde.flightgroesse !== 2) {
+        return "";
+    }
+
+    const cashflow =
+        berechneZweierCashflow(spielerwerte);
+
+    const gesamtpunkteZeilen = spielerwerte
+        .map(
+            (spieler, index) => `
+                <div>
+                    <dt>Gesamtpunkte ${spieler.name}</dt>
+                    <dd>
+                        ${formatierePunkte(
+                            cashflow.gesamtpunkte[index]
+                        )}
+                    </dd>
+                </div>
+            `
+        )
+        .join("");
+
+    const siegeranzeige =
+        cashflow.gewinnerIndex === null
+            ? `
+                <p class="siegeranzeige">
+                    Die Gesamtwertung ist ausgeglichen.
+                </p>
+            `
+            : `
+                <p class="siegeranzeige">
+                    <strong>
+                        ${laufendeRunde.spieler[
+                            cashflow.gewinnerIndex
+                        ].name}
+                    </strong>
+                    gewinnt die Gesamtwertung.
+                </p>
+            `;
+
+    const zahlungsinhalt =
+        cashflow.zahlungen.length > 0
+            ? `
+                <ul class="zahlungsliste">
+                    ${erzeugeZahlungsliste(
+                        cashflow.zahlungen
+                    )}
+                </ul>
+            `
+            : `
+                <p>
+                    Es ist keine Zahlung erforderlich.
+                </p>
+            `;
+
+    return `
+        <section class="cashflow-bereich">
+            <h2>Abrechnung</h2>
+
+            ${siegeranzeige}
+
+            <dl class="cashflow-uebersicht">
+                ${gesamtpunkteZeilen}
+
+                <div>
+                    <dt>Punktedifferenz</dt>
+                    <dd>${cashflow.differenz}</dd>
+                </div>
+
+                <div class="hervorgehoben">
+                    <dt>Auszahlung</dt>
+                    <dd>
+                        ${formatiereEuro(
+                            cashflow.auszahlung
+                        )}
+                    </dd>
+                </div>
+            </dl>
+
+            <h3>Zahlungen</h3>
+            ${zahlungsinhalt}
+        </section>
+    `;
 }
 
 function erzeugeDreierAbrechnung(spielerwerte) {
@@ -1339,6 +1468,10 @@ function zeigeZwischenstand() {
             auswertung.teamwerte
         )}
 
+        ${erzeugeZweierAbrechnung(
+            auswertung.spielerwerte
+        )}
+
         ${erzeugeDreierAbrechnung(
             auswertung.spielerwerte
         )}
@@ -1399,6 +1532,10 @@ function zeigeEndauswertung() {
 
         ${erzeugeTeamEndkarten(
             auswertung.teamwerte
+        )}
+
+        ${erzeugeZweierAbrechnung(
+            auswertung.spielerwerte
         )}
 
         ${erzeugeDreierAbrechnung(

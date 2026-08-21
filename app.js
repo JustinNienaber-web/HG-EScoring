@@ -1075,6 +1075,99 @@ function zeigeLochmaske() {
         `;
     }
 
+    if (laufendeRunde.flightgroesse === 2) {
+        const gesamtpunkte = [0, 0];
+
+        for (
+            const bisherigeLochnummer
+            of laufendeRunde.lochfolge
+        ) {
+            const bisherigesErgebnis =
+                laufendeRunde
+                    .ergebnisse[bisherigeLochnummer];
+
+            if (
+                !bisherigesErgebnis.bestaetigt
+                && bisherigeLochnummer !== lochnummer
+            ) {
+                continue;
+            }
+
+            const bisherigesLoch =
+                findeLoch(bisherigeLochnummer);
+
+            const nettoscores =
+                bisherigesErgebnis.spieler.map(
+                    (ergebnis, spielerIndex) => {
+                        const spieler =
+                            laufendeRunde
+                                .spieler[spielerIndex];
+
+                        const vorgabeschlaege =
+                            berechneVorgabeschlaege(
+                                spieler.zockvorgabe,
+                                bisherigesLoch.hcp
+                            );
+
+                        return (
+                            ergebnis.schlaege
+                            - vorgabeschlaege
+                        );
+                    }
+                );
+
+            const lochpunkte =
+                ermittleEinzelLochpunkte(
+                    nettoscores
+                );
+
+            bisherigesErgebnis.spieler.forEach(
+                (ergebnis, spielerIndex) => {
+                    const sonderpunkte =
+                        berechneSonderpunkte(
+                            ergebnis,
+                            bisherigesLoch,
+                            bisherigesErgebnis
+                                .nearySpielerIndex
+                                === spielerIndex
+                        ).gesamt;
+
+                    gesamtpunkte[spielerIndex] +=
+                        lochpunkte[spielerIndex]
+                        + sonderpunkte;
+                }
+            );
+        }
+
+        const differenz =
+            gesamtpunkte[0] - gesamtpunkte[1];
+
+        let standText = "Even";
+        let standKlasse = "stand-even";
+
+        if (differenz > 0) {
+            standText = `
+                ${laufendeRunde.spieler[0].name}
+                +${differenz}
+            `;
+            standKlasse = "stand-team-1";
+        }
+
+        if (differenz < 0) {
+            standText = `
+                ${laufendeRunde.spieler[1].name}
+                +${Math.abs(differenz)}
+            `;
+            standKlasse = "stand-team-2";
+        }
+
+        teamZwischenstand = `
+            <div class="team-zwischenstand ${standKlasse}">
+                ${standText}
+            </div>
+        `;
+    }
+
     startkarte.innerHTML = `
         <div class="loch-kopf">
             <button
