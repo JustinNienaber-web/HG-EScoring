@@ -1009,7 +1009,10 @@ function zeigeLochmaske() {
                 laufendeRunde
                     .ergebnisse[bisherigeLochnummer];
 
-            if (!bisherigesErgebnis.bestaetigt) {
+            if (
+                !bisherigesErgebnis.bestaetigt
+                || bisherigeLochnummer === lochnummer
+            ) {
                 continue;
             }
 
@@ -1083,7 +1086,10 @@ function zeigeLochmaske() {
                 laufendeRunde
                     .ergebnisse[bisherigeLochnummer];
 
-            if (!bisherigesErgebnis.bestaetigt) {
+            if (
+                !bisherigesErgebnis.bestaetigt
+                || bisherigeLochnummer === lochnummer
+            ) {
                 continue;
             }
 
